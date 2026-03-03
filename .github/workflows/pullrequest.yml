@@ -3,7 +3,7 @@ name: docker_build_test
 run-name: docker_build
 
 on:
-  pull_request:
+  pull_request_target:
 
 env:
   DOCKER_FILE_PATH: docker/
