@@ -3,9 +3,7 @@ name: docker_build_test
 run-name: docker_build
 
 on:
-  workflow_dispatch:
-
-  workflow_call:
+  pull_request:
 
 env:
   DOCKER_FILE_PATH: docker/
@@ -15,8 +13,6 @@ env:
 jobs:
   docker_build:
     runs-on: ubuntu-latest
-    outputs:
-      build_image: ${{ steps.build.outputs.build_image }}
     steps:
 
       - name: Clone test-docker-build-2 repository
@@ -30,29 +26,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install Docker system in the runner
-        uses: ./.github/actions/install-docker
-
-      - name: Build the Docker image
-        id: build
-        run: |
-          # Build the docker image
-          set -eux
-          docker build -t ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} ../test-docker-build-2/${{ env.DOCKER_FILE_PATH }}
-
-          echo "Build successful for image ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}"
-          echo "build_image=${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}" >> "$GITHUB_OUTPUT"
-
-          set +eux
-
-      - name: Push to docker registry
-        run: |
-          echo "::Push Successful::"
-
   publish:
     runs-on: ubuntu-latest
     needs: docker_build
     steps:
       - name: Notify User
         run: |
-          echo "Docker image build successful: Image tag=${{ needs.docker_build.outputs.build_image }}"
+          echo "Docker image build successful
